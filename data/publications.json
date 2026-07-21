@@ -1,0 +1,45 @@
+{
+  "openalex_author_id": "A5009459257",
+  "work_count": 3,
+  "works": [
+    {
+      "title": "Proteomic Insights into Psychrophile Growth in Perchlorate-Amended Subzero Conditions: Implications for Martian Life Detection",
+      "year": 2025,
+      "type": "article",
+      "venue": "Astrobiology",
+      "link": "https://doi.org/10.1089/ast.2024.0065",
+      "cited_by_count_total": 2,
+      "cited_by_count_by_year": {
+        "2025": 1,
+        "2026": 1
+      }
+    },
+    {
+      "title": "Genomic signatures of cold adaptation in the family Colwelliaceae",
+      "year": 2024,
+      "type": "article",
+      "venue": "Extremophiles",
+      "link": "https://doi.org/10.1007/s00792-024-01356-0",
+      "cited_by_count_total": 2,
+      "cited_by_count_by_year": {
+        "2025": 2
+      }
+    },
+    {
+      "title": "Mitochondrial and plastid genome analysis of the heteromorphic red alga <i>Mastocarpus papillatus</i> (C. Agardh) K\u00fctzing (Phyllophoraceae, Rhodophyta) reveals two characteristic florideophyte organellar genomes",
+      "year": 2016,
+      "type": "article",
+      "venue": "Mitochondrial DNA Part B",
+      "link": "https://doi.org/10.1080/23802359.2016.1219636",
+      "cited_by_count_total": 11,
+      "cited_by_count_by_year": {
+        "2018": 2,
+        "2019": 1,
+        "2020": 2,
+        "2022": 1,
+        "2023": 2,
+        "2025": 3
+      }
+    }
+  ]
+}
