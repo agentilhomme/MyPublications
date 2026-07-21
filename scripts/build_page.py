@@ -7,8 +7,9 @@ Usage:
 Run from the repository root. Reads data/publications.json (see
 fetch_publications.py), computes headline stats and per-year citation
 series, and writes a single self-contained index.html (inline CSS/JS,
-hand-rolled SVG charts, no external dependencies) per the design plan in
-TODO-20260721-page.md.
+hand-rolled SVG charts, no external dependencies). Design/planning history
+for this page lives in ClaudeLab (todos/completed/TODO-20260721-page.md),
+not in this repo.
 """
 import json
 import re
