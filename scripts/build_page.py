@@ -17,22 +17,69 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "data" / "publications.json"
 OUT_PATH = ROOT / "index.html"
+IMAGES_DIR = ROOT / "images"
+IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp")
 
-# EDIT ME before publishing: header tagline + bio. Drafted from the papers'
-# subject matter (marine microbiology / extremophiles / astrobiology) —
-# replace with your own words.
-TAGLINE = "Marine microbiology, extremophiles & astrobiology research"
+TAGLINE = "Oceanographer with a focus in Microbiology, Extremophiles, Proteomic-based Mass Spectrometry, and Astrobiology"
 BIO = (
     "I study how microorganisms survive and adapt in extreme "
     "environments — from cold-adapted bacteria in polar seas to "
     "psychrophiles growing under perchlorate-laced, subzero conditions "
-    "relevant to the search for life on Mars. My work spans genomics, "
-    "proteomics, and organellar genome evolution in marine algae."
+    "relevant to the search for life on Mars. My work spans genomics and "
+    "proteomics, using mass-spectrometry-based approaches to understand "
+    "microbial adaptation in some of Earth's most extreme habitats."
 )
 
 
 def strip_html(text):
     return re.sub(r"<[^>]+>", "", text)
+
+
+def find_image(stem):
+    """Return a relative path (as a URL) to images/<stem>.<ext> if it exists."""
+    for ext in IMAGE_EXTS:
+        candidate = IMAGES_DIR / f"{stem}{ext}"
+        if candidate.exists():
+            return f"images/{candidate.name}"
+    return None
+
+
+def find_gallery_images(prefix="fieldwork", max_count=6):
+    if not IMAGES_DIR.exists():
+        return []
+    matches = sorted(
+        p for p in IMAGES_DIR.iterdir()
+        if p.suffix.lower() in IMAGE_EXTS and p.stem.startswith(prefix)
+    )
+    return [f"images/{p.name}" for p in matches[:max_count]]
+
+
+def render_avatar_html():
+    headshot = find_image("headshot")
+    if headshot:
+        return f'<img class="avatar-photo" src="{headshot}" alt="Anais S. Gentilhomme">'
+    return (
+        '<div class="avatar-placeholder" title="Drop a photo at images/headshot.jpg '
+        'and rerun scripts/build_page.py">'
+        '<span>📷</span></div>'
+    )
+
+
+def render_gallery_html():
+    images = find_gallery_images()
+    if images:
+        items = "\n".join(
+            f'<div class="gallery-item"><img src="{src}" alt="Fieldwork photo"></div>'
+            for src in images
+        )
+        return f'<div class="gallery-grid">\n{items}\n</div>'
+
+    placeholders = "\n".join(
+        '<div class="gallery-item gallery-placeholder">'
+        f'<span>📷</span><span class="gallery-hint">images/fieldwork-{i}.jpg</span></div>'
+        for i in range(1, 4)
+    )
+    return f'<div class="gallery-grid">\n{placeholders}\n</div>'
 
 
 def compute_h_index(citation_counts):
@@ -124,7 +171,12 @@ def main():
     }
 
     data_json = json.dumps(payload)
-    html = HTML_TEMPLATE.replace("__DATA_JSON__", data_json)
+    html = (
+        HTML_TEMPLATE
+        .replace("__DATA_JSON__", data_json)
+        .replace("__AVATAR_HTML__", render_avatar_html())
+        .replace("__GALLERY_HTML__", render_gallery_html())
+    )
     OUT_PATH.write_text(html, encoding="utf-8")
     print(f"Wrote {OUT_PATH} ({len(papers_payload)} papers, {min_year}-{max_year})")
 
@@ -214,9 +266,58 @@ header.masthead {
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
 }
+header.masthead .masthead-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
 header.masthead h1 { font-size: 1.9rem; }
 header.masthead .tagline { color: var(--accent-ink); font-weight: 600; margin-bottom: 0.6em; }
 header.masthead .bio { max-width: 62ch; color: var(--text-secondary); }
+
+.avatar-photo, .avatar-placeholder {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  border: 1px dashed var(--border);
+  font-size: 1.6rem;
+  color: var(--text-muted);
+}
+
+section.gallery { margin-top: 2.5rem; }
+section.gallery h2 { font-size: 1.2rem; margin-bottom: 1rem; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.gallery-item {
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+}
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  border-style: dashed;
+  color: var(--text-muted);
+  font-size: 1.8rem;
+}
+.gallery-hint { font-size: 0.7rem; font-family: system-ui, sans-serif; }
 
 #theme-toggle {
   border: 1px solid var(--border);
@@ -392,10 +493,13 @@ footer.page-footer a { color: var(--text-muted); }
 <div class="page">
 
   <header class="masthead">
-    <div>
-      <h1 id="author-name"></h1>
-      <p class="tagline" id="author-tagline"></p>
-      <p class="bio" id="author-bio"></p>
+    <div class="masthead-main">
+      __AVATAR_HTML__
+      <div>
+        <h1 id="author-name"></h1>
+        <p class="tagline" id="author-tagline"></p>
+        <p class="bio" id="author-bio"></p>
+      </div>
     </div>
     <button id="theme-toggle" type="button" aria-label="Toggle dark mode">🌙 Dark mode</button>
   </header>
@@ -443,6 +547,11 @@ footer.page-footer a { color: var(--text-muted); }
       <div id="paper-list"></div>
     </section>
   </div>
+
+  <section class="gallery">
+    <h2>Fieldwork &amp; research</h2>
+    __GALLERY_HTML__
+  </section>
 
   <footer class="page-footer">
     Data from <a href="https://openalex.org" target="_blank" rel="noopener">OpenAlex</a>.
