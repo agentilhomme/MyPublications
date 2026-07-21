@@ -53,12 +53,18 @@ def extract_work(w):
     counts_by_year = sorted(
         w.get("counts_by_year", []), key=lambda c: c["year"]
     )
+    authors = [
+        a["author"]["display_name"]
+        for a in w.get("authorships", [])
+        if a.get("author", {}).get("display_name")
+    ]
     return {
         "title": w["title"],
         "year": w["publication_year"],
         "type": w["type"],
         "venue": src.get("display_name"),
         "link": w.get("doi") or loc.get("landing_page_url"),
+        "authors": authors,
         "cited_by_count_total": w["cited_by_count"],
         "cited_by_count_by_year": {
             str(c["year"]): c["cited_by_count"] for c in counts_by_year
